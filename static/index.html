@@ -190,7 +190,7 @@
 
     <script>
       const buttons = document.querySelectorAll("button");
-      const cooldownTime = 3;
+      const cooldownTime = 600; // milliseconds
       let buttonsDisabled = false;
       const dots = [
         document.getElementById("dot1"),
@@ -224,16 +224,22 @@
 
           console.log(buttonValue);
 
-          fetch(`https://clic.epfl.ch/ic-plays-pokemon/api/sendkey?key=${buttonValue}`, {
-            method: "POST",
-          });
+          fetch(
+            `https://clic.epfl.ch/ic-plays-pokemon/api/sendkey?key=${buttonValue}`,
+            {
+              method: "POST",
+            }
+          );
         });
       });
 
       function updateRoundProgress() {
         const now = new Date();
-        const seconds = now.getSeconds() + now.getMilliseconds() / 1000;
-        const position = Math.floor(seconds % cooldownTime);
+        const milliseconds = now.getSeconds() + now.getMilliseconds();
+        const millisecondsInCycle = Math.floor(milliseconds % cooldownTime);
+        const position = Math.floor(
+          (millisecondsInCycle / cooldownTime) * dots.length
+        );
 
         if (position !== lastPosition) {
           if (position >= 0 && position < dots.length) {
