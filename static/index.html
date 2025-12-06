@@ -191,7 +191,9 @@
     <script>
       const buttons = document.querySelectorAll("button");
       const cooldownTime = 600; // milliseconds
+      const cycleDuration = cooldownTime * 3;
       let buttonsDisabled = false;
+      let nextKeyPressTime = 0;
       const dots = [
         document.getElementById("dot1"),
         document.getElementById("dot2"),
@@ -218,6 +220,7 @@
           if (buttonsDisabled) return;
 
           disableButtons();
+          nextKeyPressTime = Date.now() + cooldownTime;
 
           const button = event.target;
           const buttonValue = button.dataset.value;
@@ -234,28 +237,28 @@
       });
 
       function updateRoundProgress() {
-        const now = new Date();
-        const milliseconds = now.getSeconds() + now.getMilliseconds();
-        const millisecondsInCycle = Math.floor(milliseconds % cooldownTime);
-        const position = Math.floor(
-          (millisecondsInCycle / cooldownTime) * dots.length
-        );
+        const now = Date.now();
+
+        if (buttonsDisabled && now >= nextKeyPressTime) {
+          enableButtons();
+        }
+
+        const cycleTime = now % cycleDuration;
+        const timeFraction = cycleTime / cycleDuration;
+        const position = Math.floor(timeFraction * dots.length);
 
         if (position !== lastPosition) {
           if (position >= 0 && position < dots.length) {
             dots[position].classList.add("pop");
             setTimeout(() => {
               dots[position].classList.remove("pop");
-            }, 1000);
-          }
-          if (position === 0) {
-            enableButtons();
+            }, 500);
           }
           lastPosition = position;
         }
       }
 
-      setInterval(updateRoundProgress, 100);
+      setInterval(updateRoundProgress, 20);
     </script>
   </body>
 </html>
